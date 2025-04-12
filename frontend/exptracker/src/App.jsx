@@ -7,6 +7,7 @@ import AddExpense from './pages/AddExpense';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Sidebar from './components/layout/Sidebar';
+import Receipt from './pages/Receipt';
 import './App.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/addIncome" element={<AddIncome />} />
               <Route path="/addExpense" element={<AddExpense />} />
+              <Route path="/receipt" element={<Receipt />} />
             </Routes>
           </main>
           <Footer />

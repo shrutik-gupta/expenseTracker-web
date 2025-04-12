@@ -9,6 +9,8 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [incomeTotal, setIncomeTotal] = useState(0);
   const [expenseTotal, setExpenseTotal] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
 
   useEffect(() => {
@@ -37,7 +39,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-  
+
         // Fetch expenses
         const expenseRes = await fetch('http://localhost:3000/api/expenses');
         if (!expenseRes.ok) throw new Error("Expense fetch error");
@@ -45,23 +47,23 @@ const Dashboard = () => {
         setExpenses(expenseData);
         const expenseSum = expenseData.reduce((acc, cur) => acc + parseFloat(cur.amount), 0);
         setExpenseTotal(expenseSum);
-  
+
         // Fetch income total
         const incomeRes = await fetch('http://localhost:3000/api/income/total');
         if (!incomeRes.ok) throw new Error("Income fetch error");
         const incomeData = await incomeRes.json();
         setIncomeTotal(incomeData.totalIncome);
-  
+
         setLoading(false);
       } catch (err) {
         setError(err.message);
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, []);
-  
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -91,12 +93,16 @@ const Dashboard = () => {
   return (
     <div className="container mx-auto px-4">
       <div className="flex flex-col items-center justify-center w-full px-6 mb-6">
-        <BalanceCard />
+        <div className="w-full mb-4 text-center">
+          <h2 className="text-3xl font-semibold text-green-700">
+            Balance: ₹{(incomeTotal - expenseTotal).toFixed(2)}
+          </h2>
+        </div>
       </div>
 
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">Financial Dashboard</h1>
-        {/* <div className="flex space-x-3">
+        <div className="flex space-x-3">
           <button
             onClick={() => navigate('/addIncome')}
             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -109,7 +115,7 @@ const Dashboard = () => {
           >
             Add Expense
           </button>
-        </div> */}
+        </div>
       </div>
 
       {/* Display expenses list */}
@@ -143,17 +149,21 @@ const Dashboard = () => {
                     <td className="px-4 py-3">{expense.description}</td>
                     <td className="px-4 py-3">{expense.category}</td>
                     <td className="px-4 py-3 text-right font-medium text-red-600">
-                      -${parseFloat(expense.amount).toFixed(2)}
+                      -₹{parseFloat(expense.amount).toFixed(2)}
                     </td>
-                    
+
                     <td className="px-4 py-3 text-center space-x-2">
                       {expense.receiptImage && (
                         <button
                           className="text-blue-600 hover:text-blue-800"
-                          onClick={() => window.open(`http://localhost:3000/${expense.receiptImage}`, '_blank')}
+                          onClick={() => {
+                            setSelectedImage(`http://localhost:3000/${expense.receiptImage}`);
+                            setShowModal(true);
+                          }}
                         >
                           View
                         </button>
+
                       )}
                       <button
                         className="text-red-600 hover:text-red-800"
@@ -167,6 +177,31 @@ const Dashboard = () => {
                 ))}
               </tbody>
             </table>
+            {showModal && selectedImage && (
+              <div
+                className="fixed inset-0 bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out"
+                onClick={() => setShowModal(false)}
+              >
+                <div
+                  className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full relative transform transition-all duration-300 ease-in-out scale-100 hover:scale-105"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+                    onClick={() => setShowModal(false)}
+                  >
+                    ✕
+                  </button>
+                  <img
+                    src={selectedImage}
+                    alt="Receipt"
+                    className="w-full h-auto rounded-lg shadow-lg"
+                  />
+                </div>
+              </div>
+            )}
+
+
           </div>
         )}
       </div>
