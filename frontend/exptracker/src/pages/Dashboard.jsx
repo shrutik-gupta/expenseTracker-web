@@ -5,13 +5,14 @@ import BalanceCard from '../components/dashboard/BalanceCard';
 const Dashboard = () => {
   const navigate = useNavigate();
   const [expenses, setExpenses] = useState([]);
+  const [filteredExpenses, setFilteredExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [incomeTotal, setIncomeTotal] = useState(0);
   const [expenseTotal, setExpenseTotal] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchExpenses = async () => {
@@ -25,6 +26,7 @@ const Dashboard = () => {
 
         const data = await response.json();
         setExpenses(data);
+        setFilteredExpenses(data);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch expenses. ' + err.message);
@@ -45,6 +47,7 @@ const Dashboard = () => {
         if (!expenseRes.ok) throw new Error("Expense fetch error");
         const expenseData = await expenseRes.json();
         setExpenses(expenseData);
+        setFilteredExpenses(expenseData);
         const expenseSum = expenseData.reduce((acc, cur) => acc + parseFloat(cur.amount), 0);
         setExpenseTotal(expenseSum);
 
@@ -64,6 +67,27 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
+  // Update expenseTotal whenever expenses change
+  useEffect(() => {
+    const newExpenseTotal = expenses.reduce((acc, cur) => acc + parseFloat(cur.amount), 0);
+    setExpenseTotal(newExpenseTotal);
+  }, [expenses]);
+
+  useEffect(() => {
+    // Filter expenses based on search term
+    if (searchTerm.trim() === '') {
+      setFilteredExpenses(expenses);
+    } else {
+      const lowercaseSearch = searchTerm.toLowerCase();
+      const filtered = expenses.filter(expense => 
+        expense.description?.toLowerCase().includes(lowercaseSearch) ||
+        expense.category?.toLowerCase().includes(lowercaseSearch) ||
+        expense.amount?.toString().includes(lowercaseSearch) ||
+        (expense.date && new Date(expense.date).toLocaleDateString().includes(lowercaseSearch))
+      );
+      setFilteredExpenses(filtered);
+    }
+  }, [searchTerm, expenses]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -82,13 +106,23 @@ const Dashboard = () => {
         throw new Error(`Failed to delete. Status: ${response.status}`);
       }
 
+      // Find the expense amount before deleting
+      const expenseToDelete = expenses.find(exp => exp._id === id);
+      
       // Remove the deleted expense from state
-      setExpenses(prev => prev.filter(exp => exp._id !== id));
+      const updatedExpenses = expenses.filter(exp => exp._id !== id);
+      setExpenses(updatedExpenses);
+      setFilteredExpenses(prev => prev.filter(exp => exp._id !== id));
+      
+      // No need to manually update the expense total here as it will be updated by the useEffect
     } catch (err) {
       setError('Failed to delete expense. ' + err.message);
     }
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   return (
     <div className="container mx-auto px-4">
@@ -105,32 +139,54 @@ const Dashboard = () => {
         <div className="flex space-x-3">
           <button
             onClick={() => navigate('/addIncome')}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer"
           >
             Add Income
           </button>
           <button
             onClick={() => navigate('/addExpense')}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 cursor-pointer"
           >
             Add Expense
           </button>
         </div>
       </div>
 
+      {/* Search bar */}
+      <div className="mb-6">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search expenses by description, category, amount..."
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
       {/* Display expenses list */}
       <div className="bg-white rounded-lg shadow-md p-4">
-        <h2 className="text-xl font-semibold mb-4">Recent Expenses</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          {searchTerm ? `Search Results (${filteredExpenses.length})` : 'Recent Expenses'}
+        </h2>
 
         {loading && <p className="text-center py-4">Loading expenses...</p>}
 
         {error && <p className="text-red-500 text-center py-4">{error}</p>}
 
-        {!loading && !error && expenses.length === 0 && (
-          <p className="text-gray-500 text-center py-4">No expenses found. Add your first expense!</p>
+        {!loading && !error && filteredExpenses.length === 0 && (
+          <p className="text-gray-500 text-center py-4">
+            {searchTerm ? `No expenses found matching "${searchTerm}"` : 'No expenses found. Add your first expense!'}
+          </p>
         )}
 
-        {!loading && !error && expenses.length > 0 && (
+        {!loading && !error && filteredExpenses.length > 0 && (
           <div className="overflow-x-auto">
             <table className="w-full table-auto">
               <thead className="bg-gray-100">
@@ -143,7 +199,7 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {expenses.map((expense) => (
+                {filteredExpenses.map((expense) => (
                   <tr key={expense._id} className="border-b">
                     <td className="px-4 py-3">{formatDate(expense.date)}</td>
                     <td className="px-4 py-3">{expense.description}</td>
@@ -155,7 +211,7 @@ const Dashboard = () => {
                     <td className="px-4 py-3 text-center space-x-2">
                       {expense.receiptImage && (
                         <button
-                          className="text-blue-600 hover:text-blue-800"
+                          className="text-blue-600 hover:text-blue-800 cursor-pointer"
                           onClick={() => {
                             setSelectedImage(`http://localhost:3000/${expense.receiptImage}`);
                             setShowModal(true);
@@ -163,16 +219,14 @@ const Dashboard = () => {
                         >
                           View
                         </button>
-
                       )}
                       <button
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800 cursor-pointer"
                         onClick={() => handleDelete(expense._id)}
                       >
                         Delete
                       </button>
                     </td>
-
                   </tr>
                 ))}
               </tbody>
@@ -200,8 +254,6 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
-
-
           </div>
         )}
       </div>

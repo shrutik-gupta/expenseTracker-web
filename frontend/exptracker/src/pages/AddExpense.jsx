@@ -69,6 +69,12 @@ const AddExpense = () => {
 
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
+      <button
+      onClick={() => navigate('/dashboard')}
+      className="mb-4 text-purple-600 hover:text-purple-800 font-medium flex items-center cursor-pointer"
+    >
+      ← Back to Dashboard
+    </button>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Add Expense</h1>
       <form onSubmit={handleFormSubmit}>
         <div className="mb-4">
@@ -116,8 +122,8 @@ const AddExpense = () => {
         </div>
 
         <div className="flex justify-end space-x-3 mt-6">
-          <button type="button" onClick={() => navigate('/dashboard')} className="px-6 py-3 border rounded-lg text-gray-700 hover:bg-gray-100">Cancel</button>
-          <button type="submit" className="px-6 py-3 rounded-lg text-white bg-purple-600 hover:bg-purple-700">Add Expense</button>
+          <button type="button" onClick={() => navigate('/dashboard')} className="px-6 py-3 border rounded-lg text-gray-700 hover:bg-gray-100 cursor-pointer">Cancel</button>
+          <button type="submit" className="px-6 py-3 rounded-lg text-white bg-purple-600 hover:bg-purple-700 cursor-pointer">Add Expense</button>
         </div>
       </form>
     </div>

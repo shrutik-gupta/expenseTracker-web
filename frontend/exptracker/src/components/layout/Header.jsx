@@ -10,20 +10,20 @@ const Header = () => {
           <h1 className="text-xl font-bold">ExpenseTracker</h1>
         </div>
         <div className="flex items-center space-x-6">
-          <div className="relative">
+          {/* <div className="relative">
             <input
               type="text"
               placeholder="Search..."
               className="bg-purple-800 text-white rounded-full py-1 px-4 pl-8 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
             <Search size={16} className="absolute left-2 top-2 text-purple-300" />
-          </div>
-          <button className="hover:text-purple-300"><Bell size={20} /></button>
+          </div> */}
+          {/* <button className="hover:text-purple-300"><Bell size={20} /></button>
           <button className="hover:text-purple-300"><Settings size={20} /></button>
           <button className="flex items-center space-x-2 hover:text-purple-300">
             <User size={20} />
             <span>Profile</span>
-          </button>
+          </button> */}
         </div>
       </div>
     </header>

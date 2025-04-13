@@ -78,6 +78,12 @@ const AddIncome = () => {
 
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
+      <button
+      onClick={() => navigate('/dashboard')}
+      className="mb-4 text-purple-600 hover:text-purple-800 font-medium flex items-center cursor-pointer"
+    >
+      ← Back to Dashboard
+    </button>
       <h1 className="text-2xl font-bold text-gray-800">Add Income</h1>
       <form onSubmit={handleIncomeSubmit}>
         {['income', 'emi', 'rent', 'investment', 'others'].map((field) => (
@@ -123,13 +129,13 @@ const AddIncome = () => {
           <button
             type="button"
             onClick={() => navigate('/dashboard')}
-            className="px-6 py-3 border rounded-lg text-gray-700 hover:bg-gray-100"
+            className="px-6 py-3 border rounded-lg text-gray-700 hover:bg-gray-100 cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-6 py-3 rounded-lg text-white bg-green-600 hover:bg-green-700"
+            className="px-6 py-3 rounded-lg text-white bg-green-600 hover:bg-green-700 cursor-pointer"
           >
             Add Income
           </button>
