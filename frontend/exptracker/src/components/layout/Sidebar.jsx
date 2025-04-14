@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Receipt } from 'lucide-react';
+import { Home, Receipt, BarChart3 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -28,6 +28,17 @@ const Sidebar = () => {
         >
           <Receipt size={20} />
           <span>Receipt</span>
+        </NavLink>
+        <NavLink
+          to="/analytics"
+          className={({ isActive }) =>
+            `flex items-center space-x-2 w-full p-2 rounded-md font-medium ${
+              isActive ? 'bg-purple-100 text-purple-900' : 'text-gray-600 hover:bg-gray-100'
+            }`
+          }
+        >
+          <BarChart3 size={20} />
+          <span>Analytics</span>
         </NavLink>
       </nav>
     </div>

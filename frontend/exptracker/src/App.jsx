@@ -9,6 +9,7 @@ import Footer from './components/layout/Footer';
 import Sidebar from './components/layout/Sidebar';
 import Receipt from './pages/Receipt';
 import './App.css';
+import Analytics from './pages/Analytics';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
               <Route path="/addIncome" element={<AddIncome />} />
               <Route path="/addExpense" element={<AddExpense />} />
               <Route path="/receipt" element={<Receipt />} />
+              <Route path="/analytics" element={<Analytics />} />
             </Routes>
           </main>
           <Footer />

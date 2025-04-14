@@ -12,7 +12,7 @@ const Dashboard = () => {
   const [expenseTotal, setExpenseTotal] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all'); // 'all', 'today', 'weekly', 'monthly'
 
   useEffect(() => {
     const fetchExpenses = async () => {
@@ -73,21 +73,41 @@ const Dashboard = () => {
     setExpenseTotal(newExpenseTotal);
   }, [expenses]);
 
+  // Filter expenses based on active filter
   useEffect(() => {
-    // Filter expenses based on search term
-    if (searchTerm.trim() === '') {
+    if (activeFilter === 'all') {
       setFilteredExpenses(expenses);
-    } else {
-      const lowercaseSearch = searchTerm.toLowerCase();
-      const filtered = expenses.filter(expense => 
-        expense.description?.toLowerCase().includes(lowercaseSearch) ||
-        expense.category?.toLowerCase().includes(lowercaseSearch) ||
-        expense.amount?.toString().includes(lowercaseSearch) ||
-        (expense.date && new Date(expense.date).toLocaleDateString().includes(lowercaseSearch))
-      );
-      setFilteredExpenses(filtered);
+      return;
     }
-  }, [searchTerm, expenses]);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const filtered = expenses.filter(expense => {
+      const expenseDate = new Date(expense.date);
+      expenseDate.setHours(0, 0, 0, 0);
+      
+      if (activeFilter === 'today') {
+        return expenseDate.getTime() === today.getTime();
+      }
+      
+      if (activeFilter === 'weekly') {
+        const oneWeekAgo = new Date(today);
+        oneWeekAgo.setDate(today.getDate() - 7);
+        return expenseDate >= oneWeekAgo && expenseDate <= today;
+      }
+      
+      if (activeFilter === 'monthly') {
+        const oneMonthAgo = new Date(today);
+        oneMonthAgo.setMonth(today.getMonth() - 1);
+        return expenseDate >= oneMonthAgo && expenseDate <= today;
+      }
+      
+      return true;
+    });
+    
+    setFilteredExpenses(filtered);
+  }, [activeFilter, expenses]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -120,17 +140,50 @@ const Dashboard = () => {
     }
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
+  const getFilterButtonClass = (filter) => {
+    return `px-4 py-2 rounded-lg ${
+      activeFilter === filter 
+        ? 'bg-purple-600 text-white' 
+        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+    } transition-colors duration-200 cursor-pointer`;
   };
 
   return (
     <div className="container mx-auto px-4">
       <div className="flex flex-col items-center justify-center w-full px-6 mb-6">
-        <div className="w-full mb-4 text-center">
+        <div className="w-full mb-4 text-start">
           <h2 className="text-3xl font-semibold text-green-700">
-            Balance: ₹{(incomeTotal - expenseTotal).toFixed(2)}
+            Current Balance: ₹{(incomeTotal - expenseTotal).toFixed(2)}
           </h2>
+          
+          {/* Income and Expense Totals with Arrow Symbols */}
+          <div className="flex justify-start mt-4 space-x-12">
+            {/* Income with Up Arrow */}
+            <div className="flex items-center">
+              <div className="bg-green-100 p-2 rounded-full mr-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <p className="text-sm text-gray-500">Income</p>
+                <p className="text-lg font-medium text-green-600">₹{incomeTotal.toFixed(2)}</p>
+              </div>
+            </div>
+            
+            {/* Expense with Down Arrow */}
+            <div className="flex items-center">
+              <div className="bg-red-100 p-2 rounded-full mr-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <p className="text-sm text-gray-500">Expense</p>
+                <p className="text-lg font-medium text-red-600">₹{expenseTotal.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -152,28 +205,40 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Search bar */}
+      {/* Filter buttons instead of search bar */}
       <div className="mb-6">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search expenses by description, category, amount..."
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-          </div>
+        <div className="flex space-x-4">
+          <button 
+            className={getFilterButtonClass('all')}
+            onClick={() => setActiveFilter('all')}
+          >
+            All
+          </button>
+          <button 
+            className={getFilterButtonClass('today')}
+            onClick={() => setActiveFilter('today')}
+          >
+            Today
+          </button>
+          <button 
+            className={getFilterButtonClass('weekly')}
+            onClick={() => setActiveFilter('weekly')}
+          >
+            Weekly
+          </button>
+          <button 
+            className={getFilterButtonClass('monthly')}
+            onClick={() => setActiveFilter('monthly')}
+          >
+            Monthly
+          </button>
         </div>
       </div>
 
       {/* Display expenses list */}
       <div className="bg-white rounded-lg shadow-md p-4">
         <h2 className="text-xl font-semibold mb-4">
-          {searchTerm ? `Search Results (${filteredExpenses.length})` : 'Recent Expenses'}
+          {activeFilter !== 'all' ? `${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)} Expenses (${filteredExpenses.length})` : 'All Expenses'}
         </h2>
 
         {loading && <p className="text-center py-4">Loading expenses...</p>}
@@ -182,7 +247,7 @@ const Dashboard = () => {
 
         {!loading && !error && filteredExpenses.length === 0 && (
           <p className="text-gray-500 text-center py-4">
-            {searchTerm ? `No expenses found matching "${searchTerm}"` : 'No expenses found. Add your first expense!'}
+            No expenses found for the selected period.
           </p>
         )}
 
