@@ -133,15 +133,13 @@ const Dashboard = () => {
       const updatedExpenses = expenses.filter(exp => exp._id !== id);
       setExpenses(updatedExpenses);
       setFilteredExpenses(prev => prev.filter(exp => exp._id !== id));
-      
-      // No need to manually update the expense total here as it will be updated by the useEffect
     } catch (err) {
       setError('Failed to delete expense. ' + err.message);
     }
   };
 
   const getFilterButtonClass = (filter) => {
-    return `px-4 py-2 rounded-lg ${
+    return `px-3 py-2 text-sm md:px-4 md:py-2 md:text-base rounded-lg ${
       activeFilter === filter 
         ? 'bg-purple-600 text-white' 
         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -149,65 +147,65 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="container mx-auto px-4">
-      <div className="flex flex-col items-center justify-center w-full px-6 mb-6">
+    <div className="container mx-auto px-2 sm:px-4 max-w-full">
+      <div className="flex flex-col items-center justify-center w-full px-2 sm:px-6 mb-6">
         <div className="w-full mb-4 text-start">
-          <h2 className="text-3xl font-semibold text-green-700">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-green-700">
             Current Balance: ₹{(incomeTotal - expenseTotal).toFixed(2)}
           </h2>
           
           {/* Income and Expense Totals with Arrow Symbols */}
-          <div className="flex justify-start mt-4 space-x-12">
+          <div className="flex flex-col sm:flex-row justify-start mt-4 space-y-4 sm:space-y-0 sm:space-x-6 md:space-x-12">
             {/* Income with Up Arrow */}
             <div className="flex items-center">
               <div className="bg-green-100 p-2 rounded-full mr-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
                 </svg>
               </div>
               <div className="text-left">
-                <p className="text-sm text-gray-500">Income</p>
-                <p className="text-lg font-medium text-green-600">₹{incomeTotal.toFixed(2)}</p>
+                <p className="text-xs md:text-sm text-gray-500">Income</p>
+                <p className="text-base md:text-lg font-medium text-green-600">₹{incomeTotal.toFixed(2)}</p>
               </div>
             </div>
             
             {/* Expense with Down Arrow */}
             <div className="flex items-center">
               <div className="bg-red-100 p-2 rounded-full mr-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
               </div>
               <div className="text-left">
-                <p className="text-sm text-gray-500">Expense</p>
-                <p className="text-lg font-medium text-red-600">₹{expenseTotal.toFixed(2)}</p>
+                <p className="text-xs md:text-sm text-gray-500">Expense</p>
+                <p className="text-base md:text-lg font-medium text-red-600">₹{expenseTotal.toFixed(2)}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">Financial Dashboard</h1>
-        <div className="flex space-x-3">
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Financial Dashboard</h1>
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => navigate('/addIncome')}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer"
+            className="px-3 py-1 sm:px-4 sm:py-2 text-sm md:text-base bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer"
           >
             Add Income
           </button>
           <button
             onClick={() => navigate('/addExpense')}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 cursor-pointer"
+            className="px-3 py-1 sm:px-4 sm:py-2 text-sm md:text-base bg-purple-600 text-white rounded-lg hover:bg-purple-700 cursor-pointer"
           >
             Add Expense
           </button>
         </div>
       </div>
 
-      {/* Filter buttons instead of search bar */}
-      <div className="mb-6">
-        <div className="flex space-x-4">
+      {/* Filter buttons  */}
+      <div className="mb-4 sm:mb-6 overflow-x-auto">
+        <div className="flex space-x-2 md:space-x-4 min-w-max">
           <button 
             className={getFilterButtonClass('all')}
             onClick={() => setActiveFilter('all')}
@@ -236,8 +234,8 @@ const Dashboard = () => {
       </div>
 
       {/* Display expenses list */}
-      <div className="bg-white rounded-lg shadow-md p-4">
-        <h2 className="text-xl font-semibold mb-4">
+      <div className="bg-white rounded-lg shadow-md p-2 sm:p-4">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4">
           {activeFilter !== 'all' ? `${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)} Expenses (${filteredExpenses.length})` : 'All Expenses'}
         </h2>
 
@@ -256,24 +254,24 @@ const Dashboard = () => {
             <table className="w-full table-auto">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 py-2 text-left">Date</th>
-                  <th className="px-4 py-2 text-left">Description</th>
-                  <th className="px-4 py-2 text-left">Category</th>
-                  <th className="px-4 py-2 text-right">Amount</th>
-                  <th className="px-4 py-2 text-center">Receipt</th>
+                  <th className="px-2 py-2 text-left text-xs sm:px-4 sm:text-sm">Date</th>
+                  <th className="px-2 py-2 text-left text-xs sm:px-4 sm:text-sm">Description</th>
+                  <th className="px-2 py-2 text-left text-xs sm:px-4 sm:text-sm">Category</th>
+                  <th className="px-2 py-2 text-right text-xs sm:px-4 sm:text-sm">Amount</th>
+                  <th className="px-2 py-2 text-center text-xs sm:px-4 sm:text-sm">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredExpenses.map((expense) => (
                   <tr key={expense._id} className="border-b">
-                    <td className="px-4 py-3">{formatDate(expense.date)}</td>
-                    <td className="px-4 py-3">{expense.description}</td>
-                    <td className="px-4 py-3">{expense.category}</td>
-                    <td className="px-4 py-3 text-right font-medium text-red-600">
+                    <td className="px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm">{formatDate(expense.date)}</td>
+                    <td className="px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm">{expense.description}</td>
+                    <td className="px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm">{expense.category}</td>
+                    <td className="px-2 py-2 sm:px-4 sm:py-3 text-right text-xs sm:text-sm font-medium text-red-600">
                       -₹{parseFloat(expense.amount).toFixed(2)}
                     </td>
 
-                    <td className="px-4 py-3 text-center space-x-2">
+                    <td className="px-2 py-2 sm:px-4 sm:py-3 text-center flex justify-center space-x-2 text-xs sm:text-sm">
                       {expense.receiptImage && (
                         <button
                           className="text-blue-600 hover:text-blue-800 cursor-pointer"
@@ -298,11 +296,11 @@ const Dashboard = () => {
             </table>
             {showModal && selectedImage && (
               <div
-                className="fixed inset-0 bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out"
+                className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out px-4"
                 onClick={() => setShowModal(false)}
               >
                 <div
-                  className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full relative transform transition-all duration-300 ease-in-out scale-100 hover:scale-105"
+                  className="bg-white p-4 sm:p-6 rounded-lg shadow-lg max-w-md w-full relative transform transition-all duration-300 ease-in-out scale-100 hover:scale-105"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button

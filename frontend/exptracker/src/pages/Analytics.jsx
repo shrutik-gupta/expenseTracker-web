@@ -61,68 +61,80 @@ const Analytics = () => {
     amount
   }));
 
+  const getFilterButtonClass = (buttonType) => {
+    return `px-2 py-2 sm:px-4 text-sm sm:text-base rounded-lg ${
+      filter === buttonType 
+        ? 'bg-blue-500 text-white' 
+        : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+    } transition-colors duration-200 cursor-pointer flex-1 text-center`;
+  };
+
   return (
-    <div style={{ padding: '2rem' }}>
+    <div className="w-full max-w-6xl mx-auto p-3 sm:p-8">
       {/* Filter Buttons */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
         {['All', 'Daily', 'Weekly', 'Monthly'].map((type) => (
           <button
             key={type}
             onClick={() => setFilter(type)}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: filter === type ? '#007bff' : '#f0f0f0',
-              color: filter === type ? 'white' : 'black',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
+            className={getFilterButtonClass(type)}
           >
             {type}
           </button>
         ))}
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'center' }}>
+      <div className="flex flex-col lg:flex-row gap-6 justify-center">
         {/* Bar Chart */}
-        <div style={{ width: '45%', minWidth: '300px' }}>
-          <h3>Expense by Category</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
-              <XAxis dataKey="category" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="amount" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="w-full lg:w-1/2">
+          <h3 className="text-lg sm:text-xl font-semibold mb-4 text-center">Expense by Category</h3>
+          <div className="h-64 sm:h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <XAxis dataKey="category" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="amount" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         {/* Pie Chart */}
-        <div style={{ width: '45%', minWidth: '300px' }}>
-          <h3>Expense Distribution</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={chartData}
-                dataKey="amount"
-                nameKey="category"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                label={({ category, percent }) =>
-                  `${category} ${(percent * 100).toFixed(0)}%`
-                }
-              >
-                {chartData.map((_, index) => (
-                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+        <div className="w-full lg:w-1/2">
+          <h3 className="text-lg sm:text-xl font-semibold mb-4 text-center">Expense Distribution</h3>
+          <div className="h-64 sm:h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  dataKey="amount"
+                  nameKey="category"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={chartData.length > 0 ? "70%" : 80}
+                  label={({ category, percent }) =>
+                    `${category} ${(percent * 100).toFixed(0)}%`
+                  }
+                  labelLine={false}
+                >
+                  {chartData.map((_, index) => (
+                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
+
+      {chartData.length === 0 && (
+        <div className="text-center mt-8 p-6 bg-gray-50 rounded-lg">
+          <p className="text-gray-500">No expense data available for the selected period.</p>
+        </div>
+      )}
     </div>
   );
 };
